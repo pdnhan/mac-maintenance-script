@@ -1,67 +1,74 @@
-# Mac Maintenance & Optimization Checker
+# 🚀 Mac Maintenance & Optimization Checker
 
-A lightweight, read-only Bash script that checks your Mac's health across four areas: security, cache bloat, performance, and unused CLI tools. It reports findings and suggestions — it never deletes or modifies anything on its own.
+**Is your Mac feeling sluggish?** Over time, every Mac accumulates gigabytes of stale caches, orphaned tools, and forgotten packages that drain performance and eat up disk space.
 
-## What it checks
-
-| Area | Details |
-|------|---------|
-| Security | macOS updates, Firewall, SIP, Gatekeeper, FileVault |
-| Cache & Storage | User caches, Xcode, Docker, npm, Gradle, Cargo |
-| Performance | System uptime, disk usage |
-| Unused CLI Tools | Binaries in common `bin` directories not accessed in 1+ year |
-
-## Usage
-
-```bash
-# Clone the repo
-git clone git@github.com:pdnhan/mac-maintenance-script.git
-cd mac-maintenance-script
-
-# Make executable (first time only)
-chmod +x mac_maintenance.sh
-
-# Run
-./mac_maintenance.sh
-```
-
-Output is color-coded:
-- `[OK]` — no action needed
-- `[SUGGESTION]` — optional improvement with a recommended command
-
-The script is safe to run at any time. It does **not** delete files, modify settings, or send data anywhere.
-
-## Requirements
-
-- macOS (tested on macOS Ventura and later)
-- No external dependencies — uses only built-in macOS tools
+This lightweight script gives you a **full health check in under 60 seconds**—and tells you exactly how to fix it.
 
 ---
 
-## Running with an AI agent (recommended)
+## 🛡️ Safe by Design
+This script is **read-only**. It never deletes, modifies, or uploads your data. It simply surfaces findings so you can make informed decisions.
 
-For a more powerful workflow, let an AI coding agent like **[Claude Code](https://claude.ai/code)** run the script, interpret the results, and take action for you.
+## 🔍 What It Audits
 
-### Example with Claude Code
+| Category | What it checks |
+|:---|:---|
+| **Security** | Pending updates, Firewall, SIP, Gatekeeper, and FileVault status. |
+| **Storage** | Deep dive into system caches, Xcode data, Docker VMs, npm, and Gradle. |
+| **Performance** | System uptime and disk capacity alerts. |
+| **CLI Tools** | **The unique part:** Finds binaries not touched in 1+ year. |
 
-Open your project in Claude Code and prompt it with:
+### 🧠 Smarter Unused Tool Detection
+Unlike basic scripts, this one identifies **how** a tool was installed and gives you the **exact command** to remove it. It supports:
+- **Homebrew**
+- **NPM**
+- **Cargo (Rust)**
+- **Ruby Gems**
+- **pipx (Python)**
+- **macOS Pkg Installers**
 
+---
+
+## 🛠️ Quick Start
+
+Get your first report in seconds:
+
+```bash
+# 1. Clone the toolkit
+git clone git@github.com:pdnhan/mac-maintenance-script.git
+cd mac-maintenance-script
+
+# 2. Run the checker
+bash mac_maintenance.sh
 ```
-Run @mac_maintenance.sh and create a report for me
-```
 
-Claude Code will execute the script, parse the output, and generate a structured Markdown report with a prioritized action list.
+### 🎨 Color-Coded Results
+- `[OK]` — You're good to go!
+- `[SUGGESTION]` — Actionable step with a ready-to-use command.
 
-You can then follow up with:
+---
 
-```
-Based on the report, run all the recommended cleanup actions (skip system update)
-```
+## 🤖 The Pro Workflow: Use an AI Agent
 
-The agent will handle cache clearing, Docker pruning, Homebrew cleanup, and more — asking for confirmation on destructive steps before proceeding.
+The script surfaces the data; an AI agent like **[Claude Code](https://claude.ai/code)** provides the context. 
 
-### Why use an agent?
+### Why run this with Claude Code?
+1. **Zero False Positives:** The agent knows `git` is vital, even if the `atime` is stale.
+2. **One-Click Cleanup:** Just say "Based on the report, clean up everything," and the agent executes the commands for you.
+3. **Audit Trail:** Automatically generates a clean Markdown report for your records.
 
-- The script surfaces raw findings; an agent interprets them in context (e.g., it won't flag `git` or `docker` as "unused" just because `atime` is stale)
-- The agent can execute the suggested commands, verify results, and summarize what was freed
-- Generates a timestamped report you can keep for reference
+#### Example Prompt:
+> "Run @mac_maintenance.sh and give me a prioritized cleanup plan."
+
+---
+
+## 📝 Requirements
+- **macOS** (Ventura or later recommended)
+- **Zero dependencies** (uses only native tools)
+
+## 🤝 Contributing
+Found a new cache location or a better way to detect tools? Pull requests are welcome!
+
+---
+
+*Friendly reminder: Always review suggestions before running destructive commands. This script provides the map; you drive the car.*
