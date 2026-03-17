@@ -131,16 +131,57 @@ for dir in "${dirs_to_check[@]}"; do
             found_unused=true
             echo -e "\n  ${CYAN}Potentially unused tools in $dir:${NC}"
             echo "$unused_files" | while read -r file; do
-                echo "    - $(basename "$file")"
+                filename=$(basename "$file")
+                install_method="Unknown / Direct Script"
+                remove_cmd="rm -i \"$file\""
+
+                # Check if it's a symlink (most package managers use symlinks)
+                if [ -L "$file" ]; then
+                    target=$(readlink "$file")
+                    if echo "$target" | grep -qi "Cellar\|homebrew"; then
+                        install_method="Homebrew"
+                        # Extract formula name from Cellar path if possible, fallback to filename
+                        formula_name=$(echo "$target" | awk -F'Cellar/' '{print $2}' | awk -F'/' '{print $1}')
+                        [ -z "$formula_name" ] && formula_name="$filename"
+                        remove_cmd="brew uninstall $formula_name"
+                    elif echo "$target" | grep -qi "node_modules"; then
+                        install_method="NPM"
+                        remove_cmd="npm uninstall -g $filename"
+                    elif echo "$target" | grep -qi ".cargo/bin"; then
+                        install_method="Cargo (Rust)"
+                        remove_cmd="cargo uninstall $filename"
+                    elif echo "$target" | grep -qi ".gem/\|/gems/"; then
+                        install_method="Ruby Gem"
+                        remove_cmd="gem uninstall $filename"
+                    elif echo "$target" | grep -qi "pipx"; then
+                        install_method="pipx (Python)"
+                        remove_cmd="pipx uninstall $filename"
+                    else
+                        install_method="Symlink (Target: $target)"
+                        remove_cmd="rm -i \"$file\" (Consider deleting target as well)"
+                    fi
+                else
+                    # Check if it's installed via a system pkg
+                    pkg_info=$(pkgutil --file-info "$file" 2>/dev/null | grep "pkgid" | head -n 1)
+                    if [ -n "$pkg_info" ]; then
+                        pkgid=$(echo "$pkg_info" | awk '{print $2}')
+                        install_method="macOS Pkg Installer ($pkgid)"
+                        remove_cmd="Requires manual uninstall script, or cautious removal"
+                    fi
+                fi
+
+                echo -e "    - ${GREEN}$filename${NC}"
+                echo -e "      Installed via : $install_method"
+                echo -e "      How to remove : ${CYAN}$remove_cmd${NC}"
             done
         fi
     fi
 done
 
 if [ "$found_unused" = true ]; then
-    echo -e "\n  [${YELLOW}SUGGESTION${NC}] If these are tools installed via Homebrew, use 'brew uninstall <formula>' to remove them."
-    echo -e "               To proactively clean orphaned packages, run: 'brew autoremove'"
-    echo -e "               And clear old downloads with: 'brew cleanup'"
+    echo -e "\n  [${YELLOW}SUGGESTION${NC}] Review the removal commands above carefully before executing."
+    echo -e "               For Homebrew, after removal, you can clean orphaned dependencies by running: 'brew autoremove'"
+    echo -e "               And to clear cached downloads, run: 'brew cleanup'"
 else
     echo -e "  [${GREEN}OK${NC}] No heavily outdated CLI tools found in common directories."
 fi
