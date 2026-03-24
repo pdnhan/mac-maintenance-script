@@ -5,6 +5,22 @@
 # vulnerabilities, unoptimized storage, and unused CLI tools.
 # It DOES NOT modify, delete, or upload any data. Cloud storages like Google Drive and OneDrive are ignored.
 
+# Parse command line arguments
+PRUNE_DOCKER=false
+
+# Simple argument parsing
+for arg in "$@"; do
+    case $arg in
+        --prune-docker)
+        PRUNE_DOCKER=true
+        shift
+        ;;
+        *)
+        # Unknown option
+        ;;
+    esac
+done
+
 BOLD='\033[1m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -86,12 +102,29 @@ check_cache_size "$HOME/.cache"
 check_cache_size "$HOME/.cargo/registry"
 
 if [ "$has_caches" = true ]; then
-    echo -e "  [${YELLOW}SUGGESTION${NC}] These are generally safe to clear if you're low on space. E.g., 'rm -rf ~/Library/Caches/*'"
-    echo -e "               For Xcode, use 'DevCleaner' (App Store) or manually empty 'DerivedData'."
-    echo -e "               For Docker, run 'docker system prune' to free unused data."
-else
-    echo -e "  [${GREEN}OK${NC}] No significant cache buildup found."
-fi
+     echo -e "  [${YELLOW}SUGGESTION${NC}] These are generally safe to clear if you're low on space. E.g., 'rm -rf ~/Library/Caches/*'"
+     echo -e "               For Xcode, use 'DevCleaner' (App Store) or manually empty 'DerivedData'."
+     echo -e "               For Docker, run 'docker system prune' to free unused data."
+ else
+     echo -e "  [${GREEN}OK${NC}] No significant cache buildup found."
+ fi
+
+# Perform docker system prune if requested
+if [ "$PRUNE_DOCKER" = true ]; then
+     echo -e "\n${BOLD}Performing Docker System Prune...${NC}"
+     echo -e "  [${YELLOW}WARNING${NC}] This will remove ALL unused images, containers, networks, and build caches."
+     read -p "  Are you sure you want to continue? (y/N): " confirm
+     if [[ "$confirm" =~ ^[Yy]$ ]]; then
+         echo -e "  Running: ${CYAN}docker system prune -a${NC}"
+         if docker system prune -a --volumes --force 2>/dev/null; then
+             echo -e "  [${GREEN}SUCCESS${NC}] Docker system prune completed successfully."
+         else
+             echo -e "  [${RED}ERROR${NC}] Docker system prune failed. Make sure Docker is installed and running."
+         fi
+     else
+         echo -e "  [${YELLOW}INFO${NC}] Docker system prune skipped by user."
+     fi
+ fi
 
 # 3. Performance Enhancements
 echo -e "\n${BOLD}3. Performance & System Health Check${NC}"

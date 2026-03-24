@@ -7,7 +7,9 @@ This lightweight script gives you a **full health check in under 60 seconds**—
 ---
 
 ## 🛡️ Safe by Design
-This script is **read-only**. It never deletes, modifies, or uploads your data. It simply surfaces findings so you can make informed decisions.
+By default, this script is **read-only**. It never deletes, modifies, or uploads your data. It simply surfaces findings so you can make informed decisions.
+
+With the `--prune-docker` flag, the script can perform Docker system cleanup (removing unused images, containers, networks, and build caches) after obtaining your explicit confirmation.
 
 ## 🔍 What It Audits
 
@@ -38,8 +40,11 @@ Get your first report in seconds:
 git clone git@github.com:pdnhan/mac-maintenance-script.git
 cd mac-maintenance-script
 
-# 2. Run the checker
+# 2. Run the checker (read-only)
 bash mac_maintenance.sh
+
+# 2a. Run with Docker cleanup (will prompt for confirmation)
+bash mac_maintenance.sh --prune-docker
 ```
 
 ### 🎨 Color-Coded Results
