@@ -5,8 +5,6 @@ class Macmaintain < Formula
   sha256 "eae4fe9beca3108f963ff8b59cb6d3e41e8a961d649782d2ae2d7f4382da0453"
   license "MIT"
 
-  depends_on "bash"
-
   def install
     bin.install "mac_maintenance.sh" => "macmaintain"
     man1.install "man/macmaintain.1"
