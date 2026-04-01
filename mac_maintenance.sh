@@ -6,8 +6,8 @@
 # It DOES NOT modify, delete, or upload any data. Cloud storages like Google Drive and OneDrive are ignored.
 #
 # Usage:
-#   ./mac_maintenance.sh              # Run checks only (read-only)
-#   ./mac_maintenance.sh --prune-docker  # Interactive docker system prune
+#   macmaintain              # Run checks only (read-only)
+#   macmaintain --prune-docker  # Interactive docker system prune
 
 # Parse command line arguments
 PRUNE_DOCKER=false
@@ -17,7 +17,7 @@ show_help() {
     echo -e "${BOLD}Mac Maintenance & Optimization Checker${NC}"
     echo ""
     echo -e "${BOLD}Usage:${NC}"
-    echo "  ./mac_maintenance.sh [options]"
+    echo "  macmaintain [options]"
     echo ""
     echo -e "${BOLD}Options:${NC}"
     echo -e "  -h, --help          Show this help message and exit"
@@ -33,8 +33,8 @@ show_help() {
     echo "    • Unused CLI tools detection (>1 year without access)"
     echo ""
     echo -e "${BOLD}Examples:${NC}"
-    echo "  ./mac_maintenance.sh                  # Run all checks (read-only)"
-    echo "  ./mac_maintenance.sh --prune-docker   # Run checks + interactive Docker cleanup"
+    echo "  macmaintain                  # Run all checks (read-only)"
+    echo "  macmaintain --prune-docker   # Run checks + interactive Docker cleanup"
     echo ""
     echo -e "${BOLD}Notes:${NC}"
     echo "  - Cloud storages (Google Drive, OneDrive, Dropbox) are ignored"

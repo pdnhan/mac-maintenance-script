@@ -37,7 +37,7 @@ Unlike basic scripts, this one identifies **how** a tool was installed and gives
 
 ```bash
 # Add the tap
-brew tap pdnhan/maintain https://github.com/pdnhan/mac-maintenance-script
+brew tap pdnhan/maintain https://github.com/pdnhan/homebrew-maintain
 
 # Install
 brew install macmaintain
