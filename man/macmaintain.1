@@ -1,0 +1,76 @@
+.TH MACMAINTAIN 1 "April 2026" "macmaintain" "User Commands"
+.SH NAME
+macmaintain \- Mac maintenance and optimization checker
+.SH SYNOPSIS
+.B macmaintain
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+A comprehensive read\-only health check tool for macOS that analyzes security, storage, Docker containers, Ollama models, and unused CLI tools.
+.PP
+By default, the script performs only read\-only checks and does not modify any data. Use \fB\-\-prune\-docker\fR for interactive Docker cleanup.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Show this help message and exit.
+.TP
+.BR \-\-prune\-docker
+Perform interactive Docker system prune (removes unused images, containers, volumes).
+.SH CHECKS PERFORMED
+.TP
+.B Security & Vulnerabilities
+macOS updates, Firewall, SIP (System Integrity Protection), Gatekeeper, FileVault encryption.
+.TP
+.B Cache & Temporary Data
+System caches, Xcode derived data, npm, Gradle, Maven, Cargo, Docker, Ollama storage.
+.TP
+.B Docker Analysis
+Images, containers, volumes, and disk usage.
+.TP
+.B Ollama Models
+Local models, running instances, storage locations.
+.TP
+.B Performance & System Health
+Uptime analysis, disk space warnings.
+.TP
+.B Unused CLI Tools
+Binaries not accessed in >1 year with removal commands (supports Homebrew, NPM, Cargo, Ruby Gems, pipx, macOS Pkgs).
+.SH EXAMPLES
+.TP
+Run basic health check:
+.B macmaintain
+.TP
+Run with Docker cleanup option:
+.B macmaintain \-\-prune\-docker
+.TP
+Get help:
+.B macmaintain \-\-help
+.SH FILES
+.TP
+.B ~/Library/Caches
+User caches
+.TP
+.B ~/Library/Developer/Xcode/DerivedData
+Xcode build artifacts
+.TP
+.B ~/.docker
+Docker Desktop configuration
+.TP
+.B ~/.ollama
+Ollama models and cache
+.SH NOTES
+.IP \(bu 3
+Cloud storage directories (Google Drive, OneDrive, Dropbox) are automatically ignored.
+.IP \(bu 3
+macOS does not strictly log file access times, so unused CLI tool detection is an estimation.
+.IP \(bu 3
+No data is modified unless \fB\-\-prune\-docker\fR is used with confirmation.
+.SH SEE ALSO
+.BR docker (1),
+.BR ollama (1),
+.BR brew (1)
+.SH AUTHOR
+Written by pdnhan <pdnhan@users.noreply.github.com>
+.SH REPORTING BUGS
+Report bugs at https://github.com/pdnhan/mac-maintenance-script/issues
+.SH LICENSE
+MIT License

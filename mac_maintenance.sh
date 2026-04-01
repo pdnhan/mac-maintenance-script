@@ -2,15 +2,53 @@
 
 # Mac Maintenance & Optimization Checker
 # This script performs read-only checks to assess your Mac's health,
-# vulnerabilities, unoptimized storage, and unused CLI tools.
+# vulnerabilities, unoptimized storage, Docker images/containers, Ollama models, and unused CLI tools.
 # It DOES NOT modify, delete, or upload any data. Cloud storages like Google Drive and OneDrive are ignored.
+#
+# Usage:
+#   ./mac_maintenance.sh              # Run checks only (read-only)
+#   ./mac_maintenance.sh --prune-docker  # Interactive docker system prune
 
 # Parse command line arguments
 PRUNE_DOCKER=false
+SHOW_HELP=false
+
+show_help() {
+    echo -e "${BOLD}Mac Maintenance & Optimization Checker${NC}"
+    echo ""
+    echo -e "${BOLD}Usage:${NC}"
+    echo "  ./mac_maintenance.sh [options]"
+    echo ""
+    echo -e "${BOLD}Options:${NC}"
+    echo -e "  -h, --help          Show this help message and exit"
+    echo -e "  --prune-docker      Interactive Docker system prune (removes unused images, containers, volumes)"
+    echo ""
+    echo -e "${BOLD}Description:${NC}"
+    echo "  This script performs read-only checks to assess your Mac's health:"
+    echo "    • Security & vulnerability checks (SIP, Firewall, Gatekeeper, FileVault)"
+    echo "    • Cache & temporary data storage analysis"
+    echo "    • Docker images, containers, and volumes usage"
+    echo "    • Ollama models storage"
+    echo "    • Performance & system health (uptime, disk space)"
+    echo "    • Unused CLI tools detection (>1 year without access)"
+    echo ""
+    echo -e "${BOLD}Examples:${NC}"
+    echo "  ./mac_maintenance.sh                  # Run all checks (read-only)"
+    echo "  ./mac_maintenance.sh --prune-docker   # Run checks + interactive Docker cleanup"
+    echo ""
+    echo -e "${BOLD}Notes:${NC}"
+    echo "  - Cloud storages (Google Drive, OneDrive, Dropbox) are ignored"
+    echo "  - No data is modified unless --prune-docker is used with confirmation"
+    exit 0
+}
 
 # Simple argument parsing
 for arg in "$@"; do
     case $arg in
+        -h|--help)
+        SHOW_HELP=true
+        shift
+        ;;
         --prune-docker)
         PRUNE_DOCKER=true
         shift
@@ -21,6 +59,11 @@ for arg in "$@"; do
     esac
 done
 
+# Show help if requested
+if [ "$SHOW_HELP" = true ]; then
+    show_help
+fi
+
 BOLD='\033[1m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -28,9 +71,15 @@ YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${BOLD}${CYAN}==============================================${NC}"
-echo -e "${BOLD}${CYAN}      Mac Maintenance & Optimization Checker  ${NC}"
-echo -e "${BOLD}${CYAN}==============================================${NC}\n"
+echo -e "${BOLD}${CYAN}"
+echo "         .:'          =============================================="
+echo "     __ :'__          Mac Maintenance & Optimization Checker"
+echo "  .'\\\`  \`-'  \\''.     =============================================="
+echo " :          .-'"
+echo "  :         :         Assessing your Mac's health, security,"
+echo "   :         :         Docker, Ollama, and unused CLI tools."
+echo "    \`.___:'"
+echo -e "${NC}\n"
 
 # 1. Security & Vulnerabilities
 echo -e "${BOLD}1. Security & Vulnerability Checks${NC}"
@@ -100,6 +149,8 @@ check_cache_size "$HOME/.gradle/caches"
 check_cache_size "$HOME/.m2/repository"
 check_cache_size "$HOME/.cache"
 check_cache_size "$HOME/.cargo/registry"
+check_cache_size "$HOME/.docker"
+check_cache_size "$HOME/.ollama"
 
 if [ "$has_caches" = true ]; then
      echo -e "  [${YELLOW}SUGGESTION${NC}] These are generally safe to clear if you're low on space. E.g., 'rm -rf ~/Library/Caches/*'"
@@ -125,6 +176,141 @@ if [ "$PRUNE_DOCKER" = true ]; then
          echo -e "  [${YELLOW}INFO${NC}] Docker system prune skipped by user."
      fi
  fi
+
+# Docker Images & Containers Check
+echo -e "\n${BOLD}2b. Docker Images & Containers Check${NC}"
+if command -v docker &> /dev/null; then
+    if docker info &> /dev/null; then
+        echo "Checking Docker usage..."
+        
+        # Docker disk usage
+        docker_disk=$(docker system df 2>/dev/null)
+        if [ -n "$docker_disk" ]; then
+            echo -e "\n  ${CYAN}Docker Disk Usage:${NC}"
+            echo "$docker_disk" | while read -r line; do
+                echo "    $line"
+            done
+        fi
+        
+        # List images
+        images=$(docker images --format "{{.Repository}}:{{.Tag}}\t{{.Size}}" 2>/dev/null | head -20)
+        if [ -n "$images" ]; then
+            echo -e "\n  ${CYAN}Docker Images (top 20):${NC}"
+            echo "$images" | while read -r line; do
+                echo "    $line"
+            done
+            total_images=$(docker images -q | wc -l | tr -d ' ')
+            echo -e "    ${GREEN}Total: $total_images images${NC}"
+        fi
+        
+        # List containers
+        containers=$(docker ps -a --format "{{.Names}}\t{{.Status}}\t{{.Image}}" 2>/dev/null | head -10)
+        if [ -n "$containers" ]; then
+            echo -e "\n  ${CYAN}Docker Containers (top 10):${NC}"
+            echo "$containers" | while read -r line; do
+                echo "    $line"
+            done
+            total_containers=$(docker ps -aq | wc -l | tr -d ' ')
+            echo -e "    ${GREEN}Total: $total_containers containers${NC}"
+        fi
+        
+        # List volumes
+        volumes=$(docker volume ls --format "{{.Name}}\t{{.Driver}}" 2>/dev/null | head -10)
+        if [ -n "$volumes" ]; then
+            echo -e "\n  ${CYAN}Docker Volumes (top 10):${NC}"
+            echo "$volumes" | while read -r line; do
+                echo "    $line"
+            done
+            total_volumes=$(docker volume ls -q | wc -l | tr -d ' ')
+            echo -e "    ${GREEN}Total: $total_volumes volumes${NC}"
+        fi
+        
+        echo -e "\n  ${YELLOW}Docker File Locations:${NC}"
+        echo -e "    - Images & Containers: ~/Library/Containers/com.docker.docker/Data"
+        echo -e "    - Docker Desktop Disk Image: ~/Library/Containers/com.docker.docker/Data/vms/0/Docker.raw"
+        echo -e "    - Docker Desktop Config: ~/.docker"
+        echo -e "    - Volume data stored in Docker.raw disk image"
+        
+        echo -e "\n  ${YELLOW}How to Remove Docker Resources:${NC}"
+        echo -e "    ${CYAN}# Remove all stopped containers, dangling images, and unused networks:${NC}"
+        echo -e "    docker system prune"
+        echo -e "    ${CYAN}# Remove ALL unused data (containers, images, volumes, networks):${NC}"
+        echo -e "    docker system prune -a --volumes"
+        echo -e "    ${CYAN}# Remove specific image:${NC}"
+        echo -e "    docker rmi <image_id>"
+        echo -e "    ${CYAN}# Uninstall Docker Desktop:${NC}"
+        echo -e "    rm -rf /Applications/Docker.app"
+        echo -e "    rm -rf ~/Library/Containers/com.docker.docker"
+        echo -e "    rm -rf ~/.docker"
+    else
+        echo -e "  [${YELLOW}WARN${NC}] Docker is installed but not running. Start Docker Desktop to check usage."
+    fi
+else
+    echo -e "  [${GREEN}OK${NC}] Docker is not installed."
+fi
+
+# Ollama Models Check
+echo -e "\n${BOLD}2c. Ollama Models Check${NC}"
+if command -v ollama &> /dev/null; then
+    echo "Checking Ollama models..."
+    
+    # List local models
+    models=$(ollama list 2>/dev/null)
+    if [ -n "$models" ]; then
+        echo -e "\n  ${CYAN}Ollama Models:${NC}"
+        echo "$models" | while read -r line; do
+            echo "    $line"
+        done
+    fi
+    
+    # Check ollama storage location
+    ollama_home="${HOME}/.ollama"
+    models_dir="/usr/share/ollama/.ollama/models"
+    
+    if [ -d "$ollama_home" ]; then
+        ollama_size=$(du -sh "$ollama_home" 2>/dev/null | cut -f1)
+        echo -e "\n  ${CYAN}Ollama User Directory:${NC}"
+        echo -e "    Location   : $ollama_home"
+        echo -e "    Size       : ${GREEN}$ollama_size${NC}"
+    fi
+    
+    if [ -d "$models_dir" ]; then
+        models_size=$(du -sh "$models_dir" 2>/dev/null | cut -f1)
+        echo -e "\n  ${CYAN}Ollama Models (system):${NC}"
+        echo -e "    Location   : $models_dir"
+        echo -e "    Size       : ${GREEN}$models_size${NC}"
+    fi
+    
+    # Get running models
+    running=$(ollama ps 2>/dev/null)
+    if [ -n "$running" ] && echo "$running" | grep -q "NAME"; then
+        echo -e "\n  ${CYAN}Currently Running Models:${NC}"
+        echo "$running" | while read -r line; do
+            echo "    $line"
+        done
+    fi
+    
+    echo -e "\n  ${YELLOW}Ollama File Locations:${NC}"
+    echo -e "    - User config & cache: ~/.ollama"
+    echo -e "    - System models (default): /usr/share/ollama/.ollama/models"
+    echo -e "    - Custom OLLAMA_MODELS location if set via env variable"
+    echo -e "    - On macOS: ~/.ollama/models (user install)"
+    
+    echo -e "\n  ${YELLOW}How to Remove Ollama Models:${NC}"
+    echo -e "    ${CYAN}# Delete a specific model:${NC}"
+    echo -e "    ollama rm <model_name>"
+    echo -e "    ${CYAN}# List all models:${NC}"
+    echo -e "    ollama list"
+    echo -e "    ${CYAN}# Uninstall Ollama completely:${NC}"
+    echo -e "    ${CYAN}# Via Homebrew:${NC}"
+    echo -e "    brew uninstall ollama"
+    echo -e "    ${CYAN}# Or manually remove:${NC}"
+    echo -e "    rm -rf ~/.ollama"
+    echo -e "    rm -rf /usr/share/ollama"
+    echo -e "    rm -rf /usr/local/bin/ollama"
+else
+    echo -e "  [${GREEN}OK${NC}] Ollama is not installed."
+fi
 
 # 3. Performance Enhancements
 echo -e "\n${BOLD}3. Performance & System Health Check${NC}"

@@ -31,20 +31,36 @@ Unlike basic scripts, this one identifies **how** a tool was installed and gives
 
 ---
 
-## 🛠️ Quick Start
+## 📦 Installation
 
-Get your first report in seconds:
+### Via Homebrew (Recommended)
 
 ```bash
-# 1. Clone the toolkit
-git clone git@github.com:pdnhan/mac-maintenance-script.git
+# Add the tap
+brew tap pdnhan/maintain https://github.com/pdnhan/mac-maintenance-script
+
+# Install
+brew install macmaintain
+
+# Run
+macmaintain
+
+# Run with Docker cleanup
+macmaintain --prune-docker
+```
+
+### Manual Installation
+
+```bash
+# Clone
+git clone https://github.com/pdnhan/mac-maintenance-script.git
 cd mac-maintenance-script
 
-# 2. Run the checker (read-only)
+# Run directly
 bash mac_maintenance.sh
 
-# 2a. Run with Docker cleanup (will prompt for confirmation)
-bash mac_maintenance.sh --prune-docker
+# Or install to /usr/local/bin (requires sudo)
+sudo ln -s "$(pwd)/mac_maintenance.sh" /usr/local/bin/macmaintain
 ```
 
 ### 🎨 Color-Coded Results
@@ -70,6 +86,33 @@ The script surfaces the data; an AI agent like **[Claude Code](https://claude.ai
 ## 📝 Requirements
 - **macOS** (Ventura or later recommended)
 - **Zero dependencies** (uses only native tools)
+
+## 🔄 Development & Releases
+
+### Creating a New Release
+
+1. Update the version in `CHANGELOG.md`
+2. Create a git tag:
+   ```bash
+   git tag -a v1.0.0 -m "Release v1.0.0"
+   git push origin v1.0.0
+   ```
+3. Create a GitHub release with the tarball
+4. Update the SHA256 in `Formula/macmaintain.rb`:
+   ```bash
+   curl -sL https://github.com/pdnhan/mac-maintenance-script/archive/refs/tags/v1.0.0.tar.gz | shasum -a 256
+   ```
+5. Update `url` and `sha256` in the formula
+
+### Testing Locally
+
+```bash
+# Test the formula locally
+brew install --build-from-source Formula/macmaintain.rb
+
+# Or use fully-qualified path
+brew install ./Formula/macmaintain.rb
+```
 
 ## 🤝 Contributing
 Found a new cache location or a better way to detect tools? Pull requests are welcome!
