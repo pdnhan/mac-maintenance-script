@@ -8,10 +8,15 @@ macmaintain \- Mac maintenance and optimization checker
 A comprehensive read\-only health check tool for macOS that analyzes security, storage, Docker containers, Ollama models, installed language runtimes and SDKs, and unused CLI tools.
 .PP
 By default, the script performs only read\-only checks and does not modify any data. Use \fB\-\-prune\-docker\fR for interactive Docker cleanup.
+.PP
+Use \fB\-o\fR or \fB\-\-output\fR to save the generated report as a Markdown file in the current directory with the pattern \fBmacmaintain_check_[date-time].md\fR.
 .SH OPTIONS
 .TP
 .BR \-h ", " \-\-help
 Show this help message and exit.
+.TP
+.BR \-o ", " \-\-output
+Save the report as a Markdown file in the current directory.
 .TP
 .BR \-\-prune\-docker
 Perform interactive Docker system prune (removes unused images, containers, volumes).
@@ -41,6 +46,9 @@ Binaries not accessed in >1 year with removal commands (supports Homebrew, NPM, 
 .TP
 Run basic health check:
 .B macmaintain
+.TP
+Run and save a Markdown report:
+.B macmaintain \-\-output
 .TP
 Run with Docker cleanup option:
 .B macmaintain \-\-prune\-docker

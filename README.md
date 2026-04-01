@@ -13,6 +13,8 @@ By default, this script is **read-only**. It never deletes, modifies, or uploads
 
 With the `--prune-docker` flag, the script can perform Docker system cleanup (removing unused images, containers, networks, and build caches) after obtaining your explicit confirmation.
 
+With the `--output` flag, the script also writes the report to a Markdown file in the current directory using the pattern `macmaintain_check_[date-time].md`.
+
 ## 🔍 What It Audits
 
 | Category | What it checks |
@@ -52,6 +54,9 @@ macmaintain
 
 # Run with Docker cleanup
 macmaintain --prune-docker
+
+# Save the report as a Markdown file in the current directory
+macmaintain --output
 ```
 
 ### Manual Installation

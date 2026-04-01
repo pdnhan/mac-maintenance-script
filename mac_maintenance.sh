@@ -12,6 +12,8 @@
 # Parse command line arguments
 PRUNE_DOCKER=false
 SHOW_HELP=false
+OUTPUT_REPORT=false
+OUTPUT_FILE=""
 
 show_help() {
     echo -e "${BOLD}Mac Maintenance & Optimization Checker${NC}"
@@ -21,6 +23,7 @@ show_help() {
     echo ""
     echo -e "${BOLD}Options:${NC}"
     echo -e "  -h, --help          Show this help message and exit"
+    echo -e "  -o, --output        Save the report as a Markdown file in the current directory"
     echo -e "  --prune-docker      Interactive Docker system prune (removes unused images, containers, volumes)"
     echo ""
     echo -e "${BOLD}Description:${NC}"
@@ -35,6 +38,7 @@ show_help() {
     echo ""
     echo -e "${BOLD}Examples:${NC}"
     echo "  macmaintain                  # Run all checks (read-only)"
+    echo "  macmaintain --output         # Save report to ./macmaintain_check_[date-time].md"
     echo "  macmaintain --prune-docker   # Run checks + interactive Docker cleanup"
     echo ""
     echo -e "${BOLD}Notes:${NC}"
@@ -44,19 +48,24 @@ show_help() {
 }
 
 # Simple argument parsing
-for arg in "$@"; do
-    case $arg in
+while [ "$#" -gt 0 ]; do
+    case "$1" in
         -h|--help)
-        SHOW_HELP=true
-        shift
-        ;;
+            SHOW_HELP=true
+            shift
+            ;;
+        -o|--output)
+            OUTPUT_REPORT=true
+            shift
+            ;;
         --prune-docker)
-        PRUNE_DOCKER=true
-        shift
-        ;;
+            PRUNE_DOCKER=true
+            shift
+            ;;
         *)
-        # Unknown option
-        ;;
+            # Unknown option
+            shift
+            ;;
     esac
 done
 
@@ -72,6 +81,12 @@ YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+if [ "$OUTPUT_REPORT" = true ]; then
+    timestamp=$(date '+%Y-%m-%d_%H-%M-%S')
+    OUTPUT_FILE="$(pwd)/macmaintain_check_${timestamp}.md"
+    exec > >(tee "$OUTPUT_FILE") 2>&1
+fi
+
 echo -e "${BOLD}${CYAN}"
 echo "         .:'          =============================================="
 echo "     __ :'__          Mac Maintenance & Optimization Checker"
@@ -81,6 +96,11 @@ echo "  :         :         Assessing your Mac's health, security,"
 echo "   :         :         Docker, SDKs, and unused CLI tools."
 echo "    \`.___:'"
 echo -e "${NC}\n"
+
+if [ "$OUTPUT_REPORT" = true ]; then
+    echo "Report file: $OUTPUT_FILE"
+    echo ""
+fi
 
 # 1. Security & Vulnerabilities
 echo -e "${BOLD}1. Security & Vulnerability Checks${NC}"

@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-04-01
+
 ### Added
 - Language runtime audit for common developer runtimes and SDKs including Java, Node, Python, Ruby, Go, Rust, .NET, Swift, Kotlin, Scala, Gradle, Maven, Flutter, and others, with detected versions, install paths, and common uninstall guidance.
+- `-o` / `--output` flag to save the generated report in the current directory as `macmaintain_check_[date-time].md`.
 
 ### Changed
 - README feature overview now documents the runtime audit and its informational-only behavior.
+- Help output, README, and man page now document Markdown report export.
 
 ## [1.0.0] - 2025-01-01
 
