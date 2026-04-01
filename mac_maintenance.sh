@@ -361,6 +361,59 @@ echo -e "\n${BOLD}4. Installed Language Runtime Findings${NC}"
 
 found_runtimes=false
 
+describe_tool() {
+    local tool_name="$1"
+
+    case "$tool_name" in
+        git) echo "Distributed version control for source code and collaboration." ;;
+        node|nodejs) echo "JavaScript runtime for servers, CLIs, and build tooling." ;;
+        npm) echo "Package manager for installing and running JavaScript tooling." ;;
+        npx) echo "Runs Node package binaries without a separate global install." ;;
+        python|python3) echo "General-purpose language often used for scripting and automation." ;;
+        pip|pip3) echo "Package manager for installing Python libraries and tools." ;;
+        pipx) echo "Installs isolated Python command-line applications." ;;
+        ruby) echo "Programming language used for scripting, automation, and web tooling." ;;
+        gem) echo "Package manager for Ruby libraries and command-line tools." ;;
+        bundle|bundler) echo "Manages Ruby project dependencies and gem versions." ;;
+        go) echo "Compiled language and toolchain often used for backend services and CLIs." ;;
+        rustc) echo "Rust compiler for building native applications and tools." ;;
+        cargo) echo "Rust package manager and build tool." ;;
+        java) echo "JVM runtime used by many enterprise apps and developer tools." ;;
+        javac) echo "Java compiler for building JVM applications." ;;
+        mvn|maven) echo "Java build and dependency management tool for Maven projects." ;;
+        gradle) echo "Build automation tool for Java, Kotlin, and Android projects." ;;
+        kotlin|kotlinc) echo "Kotlin language compiler and CLI tooling." ;;
+        scala) echo "Scala language runtime and tooling for JVM development." ;;
+        swift) echo "Apple's language toolchain for iOS, macOS, and server-side development." ;;
+        dotnet) echo ".NET SDK and runtime for building Microsoft platform applications." ;;
+        php) echo "Scripting language commonly used for web applications and CLIs." ;;
+        perl) echo "Text-processing and scripting language used in legacy automation workflows." ;;
+        R) echo "Statistical computing environment for data analysis and visualization." ;;
+        julia) echo "High-performance language for numerical computing and data science." ;;
+        dart) echo "Language used primarily for Flutter apps and related tooling." ;;
+        flutter) echo "SDK for building cross-platform mobile, desktop, and web apps." ;;
+        docker) echo "Container platform for building, shipping, and running applications." ;;
+        docker-compose|compose) echo "Defines and runs multi-container Docker applications." ;;
+        kubectl) echo "Command-line client for managing Kubernetes clusters." ;;
+        helm) echo "Package manager for installing and upgrading Kubernetes applications." ;;
+        terraform) echo "Infrastructure-as-code CLI for provisioning cloud resources." ;;
+        ansible) echo "Automation tool for configuration management and remote orchestration." ;;
+        ollama) echo "Runs and manages local language models on your machine." ;;
+        aws) echo "AWS command-line interface for cloud operations and automation." ;;
+        gcloud) echo "Google Cloud command-line interface for cloud operations and automation." ;;
+        az) echo "Azure command-line interface for cloud operations and automation." ;;
+        brew) echo "Homebrew package manager for macOS command-line tools and apps." ;;
+        jq) echo "Processes and transforms JSON data from the command line." ;;
+        yq) echo "Processes YAML and structured data from the command line." ;;
+        ffmpeg) echo "Converts, records, and processes audio and video files." ;;
+        rg|ripgrep) echo "Fast recursive search tool for code and text files." ;;
+        sqlite3) echo "SQLite database shell for local database inspection and queries." ;;
+        psql) echo "PostgreSQL command-line client for database access and administration." ;;
+        mysql) echo "MySQL command-line client for database access and administration." ;;
+        *) echo "Purpose unknown. Verify before removing in case another workflow depends on it." ;;
+    esac
+}
+
 check_runtime() {
     local name="$1"
     local version_cmd="$2"
@@ -466,6 +519,7 @@ for dir in "${dirs_to_check[@]}"; do
 
                 echo -e "    - ${GREEN}$filename${NC}"
                 echo -e "      Installed via : $install_method"
+                echo -e "      Used for      : $(describe_tool "$filename")"
                 echo -e "      How to remove : ${CYAN}$remove_cmd${NC}"
             done
         fi

@@ -23,18 +23,27 @@ With the `--output` flag, the script also writes the report to a Markdown file i
 | **Storage** | Deep dive into system caches, Xcode data, Docker VMs, npm, and Gradle. |
 | **Performance** | System uptime and disk capacity alerts. |
 | **Language Runtimes** | Shows installed developer runtimes and SDKs such as Java, Node, Python, Ruby, Go, Rust, .NET, Swift, Kotlin, Scala, Gradle, Maven, Flutter, and more, plus uninstall guidance. |
-| **CLI Tools** | **The unique part:** Finds binaries not touched in 1+ year. |
+| **CLI Tools** | **The unique part:** Finds binaries not touched in 1+ year and shows a short description of what each tool is used for. |
 
 Runtime findings are informational only: the script reports versions and installation paths it finds in your `PATH`, then suggests the safest common uninstall route for each runtime or SDK.
 
 ### 🧠 Smarter Unused Tool Detection
-Unlike basic scripts, this one identifies **how** a tool was installed and gives you the **exact command** to remove it. It supports:
+Unlike basic scripts, this one identifies **how** a tool was installed, shows a short **Used for** description, and gives you the **exact command** to remove it. It supports:
 - **Homebrew**
 - **NPM**
 - **Cargo (Rust)**
 - **Ruby Gems**
 - **pipx (Python)**
 - **macOS Pkg Installers**
+
+Example output for an old CLI binary:
+
+```text
+- jq
+  Installed via : Homebrew
+  Used for      : Processes and transforms JSON data from the command line.
+  How to remove : brew uninstall jq
+```
 
 ---
 
@@ -99,20 +108,28 @@ The script surfaces the data; an AI agent like **[Claude Code](https://claude.ai
 
 ## 🔄 Development & Releases
 
-### Creating a New Release
+### Creating a New Release / Shipping to Homebrew
 
-1. Update the version in `CHANGELOG.md`
-2. Create a git tag:
+1. Update `CHANGELOG.md` with the release notes.
+2. Commit the release changes and create a git tag:
    ```bash
    git tag -a v1.0.0 -m "Release v1.0.0"
    git push origin v1.0.0
    ```
-3. Create a GitHub release with the tarball
-4. Update the SHA256 in `Formula/macmaintain.rb`:
+   Or use the helper script:
+   ```bash
+   ./release.sh 1.0.0
+   ```
+3. Create a GitHub release for that tag.
+4. Update `Formula/macmaintain.rb` with the new release tarball URL and SHA256:
    ```bash
    curl -sL https://github.com/pdnhan/mac-maintenance-script/archive/refs/tags/v1.0.0.tar.gz | shasum -a 256
    ```
-5. Update `url` and `sha256` in the formula
+5. Test the formula locally:
+   ```bash
+   brew install --build-from-source Formula/macmaintain.rb
+   ```
+6. Push the updated formula to the tap/repository used for Homebrew distribution.
 
 ### Testing Locally
 

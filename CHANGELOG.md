@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-04-01
+
+### Added
+- Short `Used for` descriptions for stale CLI binaries so the report gives more context before you uninstall a tool.
+
+### Changed
+- README and man page now document the extra unused-tool context and the Homebrew release flow more clearly.
+
 ## [1.0.4] - 2026-04-01
 
 ### Added
