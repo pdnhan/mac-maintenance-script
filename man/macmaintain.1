@@ -5,7 +5,7 @@ macmaintain \- Mac maintenance and optimization checker
 .B macmaintain
 [\fIOPTIONS\fR]
 .SH DESCRIPTION
-A comprehensive read\-only health check tool for macOS that analyzes security, storage, Docker containers, Ollama models, and unused CLI tools.
+A comprehensive read\-only health check tool for macOS that analyzes security, storage, Docker containers, Ollama models, installed language runtimes and SDKs, and unused CLI tools.
 .PP
 By default, the script performs only read\-only checks and does not modify any data. Use \fB\-\-prune\-docker\fR for interactive Docker cleanup.
 .SH OPTIONS
@@ -31,6 +31,9 @@ Local models, running instances, storage locations.
 .TP
 .B Performance & System Health
 Uptime analysis, disk space warnings.
+.TP
+.B Language Runtimes & SDKs
+Installed developer runtimes and SDKs found in PATH, including version output, install path, and common uninstall guidance.
 .TP
 .B Unused CLI Tools
 Binaries not accessed in >1 year with removal commands (supports Homebrew, NPM, Cargo, Ruby Gems, pipx, macOS Pkgs).

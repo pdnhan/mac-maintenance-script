@@ -2,7 +2,9 @@
 
 **Is your Mac feeling sluggish?** Over time, every Mac accumulates gigabytes of stale caches, orphaned tools, and forgotten packages that drain performance and eat up disk space.
 
-This lightweight script gives you a **full health check in under 60 seconds**—and tells you exactly how to fix it.
+This lightweight script gives you a **full health check in under 60 seconds** and tells you exactly how to fix it.
+
+It is optimized to surface actionable findings instead of noisy status lines.
 
 ---
 
@@ -18,7 +20,10 @@ With the `--prune-docker` flag, the script can perform Docker system cleanup (re
 | **Security** | Pending updates, Firewall, SIP, Gatekeeper, and FileVault status. |
 | **Storage** | Deep dive into system caches, Xcode data, Docker VMs, npm, and Gradle. |
 | **Performance** | System uptime and disk capacity alerts. |
+| **Language Runtimes** | Shows installed developer runtimes and SDKs such as Java, Node, Python, Ruby, Go, Rust, .NET, Swift, Kotlin, Scala, Gradle, Maven, Flutter, and more, plus uninstall guidance. |
 | **CLI Tools** | **The unique part:** Finds binaries not touched in 1+ year. |
+
+Runtime findings are informational only: the script reports versions and installation paths it finds in your `PATH`, then suggests the safest common uninstall route for each runtime or SDK.
 
 ### 🧠 Smarter Unused Tool Detection
 Unlike basic scripts, this one identifies **how** a tool was installed and gives you the **exact command** to remove it. It supports:

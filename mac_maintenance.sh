@@ -2,7 +2,7 @@
 
 # Mac Maintenance & Optimization Checker
 # This script performs read-only checks to assess your Mac's health,
-# vulnerabilities, unoptimized storage, Docker images/containers, Ollama models, and unused CLI tools.
+# vulnerabilities, unoptimized storage, Docker images/containers, Ollama models, language runtimes/SDKs, and unused CLI tools.
 # It DOES NOT modify, delete, or upload any data. Cloud storages like Google Drive and OneDrive are ignored.
 #
 # Usage:
@@ -30,6 +30,7 @@ show_help() {
     echo "    • Docker images, containers, and volumes usage"
     echo "    • Ollama models storage"
     echo "    • Performance & system health (uptime, disk space)"
+    echo "    • Installed language runtimes & SDKs"
     echo "    • Unused CLI tools detection (>1 year without access)"
     echo ""
     echo -e "${BOLD}Examples:${NC}"
@@ -77,7 +78,7 @@ echo "     __ :'__          Mac Maintenance & Optimization Checker"
 echo "  .'\\\`  \`-'  \\''.     =============================================="
 echo " :          .-'"
 echo "  :         :         Assessing your Mac's health, security,"
-echo "   :         :         Docker, Ollama, and unused CLI tools."
+echo "   :         :         Docker, SDKs, and unused CLI tools."
 echo "    \`.___:'"
 echo -e "${NC}\n"
 
@@ -335,8 +336,62 @@ else
     echo -e "  [${GREEN}OK${NC}] Disk space is healthy ($free_space free, $free_pct_used% used)."
 fi
 
-# 4. Unused CLI Tools
-echo -e "\n${BOLD}4. Unused CLI Tools Check (>1 year without access)${NC}"
+# 4. Installed Runtimes
+echo -e "\n${BOLD}4. Installed Language Runtime Findings${NC}"
+
+found_runtimes=false
+
+check_runtime() {
+    local name="$1"
+    local version_cmd="$2"
+    local remove_hint="$3"
+    local version_pattern="$4"
+    local runtime_path
+    local version_output
+
+    runtime_path=$(command -v "$name" 2>/dev/null)
+    if [ -n "$runtime_path" ]; then
+        found_runtimes=true
+        if [ -n "$version_pattern" ]; then
+            version_output=$(eval "$version_cmd" 2>&1 | awk -v pattern="$version_pattern" 'index($0, pattern) { print; exit }')
+        else
+            version_output=$(eval "$version_cmd" 2>&1 | awk 'NF { print; exit }')
+        fi
+        [ -z "$version_output" ] && version_output="Version output unavailable"
+        echo -e "  - ${GREEN}$name${NC}"
+        echo -e "    Version      : $version_output"
+        echo -e "    Installed at : $runtime_path"
+        echo -e "    How to remove: ${CYAN}$remove_hint${NC}"
+    fi
+}
+
+check_runtime "java" 'java -version' 'If installed with Homebrew: brew uninstall openjdk. If installed from Oracle/Adoptium pkg: remove the JDK from /Library/Java/JavaVirtualMachines and its matching app if present.' 'version'
+check_runtime "node" 'node --version' 'If installed with Homebrew: brew uninstall node. If installed with nvm: nvm uninstall <version>. If installed manually/pkg: remove the package or app that provided it.' ''
+check_runtime "python3" 'python3 --version' 'If installed with Homebrew: brew uninstall python. If installed with pyenv: pyenv uninstall <version>. Avoid deleting the macOS system Python.' ''
+check_runtime "ruby" 'ruby --version' 'If installed with Homebrew: brew uninstall ruby. If installed with rbenv or rvm: uninstall the specific version there. Avoid removing the macOS-provided Ruby unless you know it is unused.' ''
+check_runtime "go" 'go version' 'If installed with Homebrew: brew uninstall go. If installed from the official pkg or tarball: remove /usr/local/go and related PATH entries.' 'go version'
+check_runtime "rustc" 'rustc --version' 'If installed with Homebrew: brew uninstall rust. If installed with rustup: rustup self uninstall.' ''
+check_runtime "cargo" 'cargo --version' 'Usually removed together with Rust via rustup self uninstall, or brew uninstall rust if it came from Homebrew.' ''
+check_runtime "php" 'php --version' 'If installed with Homebrew: brew uninstall php. If installed manually: remove the package or app that provided it.' 'PHP '
+check_runtime "perl" 'perl -v' 'If installed with perlbrew: perlbrew uninstall <version>. Avoid removing the macOS-provided Perl without confirming nothing depends on it.' 'This is perl'
+check_runtime "dotnet" 'dotnet --version' 'If installed with Homebrew: brew uninstall --cask dotnet-sdk or brew uninstall dotnet. If installed from Microsoft installer: remove the .NET SDK from /usr/local/share/dotnet and uninstall related packages.' ''
+check_runtime "swift" 'swift --version' 'Usually provided by Xcode or Command Line Tools. Remove by uninstalling Xcode or the matching developer tools package if you no longer need them.' 'Swift version'
+check_runtime "kotlinc" 'kotlinc -version' 'If installed with Homebrew: brew uninstall kotlin. If installed via SDKMAN: sdk uninstall kotlin <version>.' 'kotlinc-jvm'
+check_runtime "scala" 'scala -version' 'If installed with Homebrew: brew uninstall scala. If installed via SDKMAN: sdk uninstall scala <version>.' 'Scala code runner version'
+check_runtime "gradle" 'gradle --version' 'If installed with Homebrew: brew uninstall gradle. If installed via SDKMAN: sdk uninstall gradle <version>.' 'Gradle '
+check_runtime "mvn" 'mvn -version' 'If installed with Homebrew: brew uninstall maven. If installed via SDKMAN: sdk uninstall maven <version>.' 'Apache Maven'
+check_runtime "clojure" 'clojure -Sdescribe' 'If installed with Homebrew: brew uninstall clojure/tools-deps. If installed manually: remove the package or scripts that provided it.' 'version-string'
+check_runtime "R" 'R --version' 'If installed with Homebrew: brew uninstall r. If installed from CRAN pkg: remove the R framework and app bundle.' 'R version'
+check_runtime "julia" 'julia --version' 'If installed with Homebrew: brew uninstall julia. If installed manually: remove the Julia app or extracted directory and PATH entry.' 'julia version'
+check_runtime "dart" 'dart --version' 'If installed with Homebrew: brew uninstall dart. If installed via Flutter SDK: remove Flutter, which also removes Dart.' 'Dart SDK version'
+check_runtime "flutter" 'flutter --version' 'If installed with Homebrew: brew uninstall flutter. If installed manually: remove the Flutter SDK directory and PATH entry.' 'Flutter '
+
+if [ "$found_runtimes" = false ]; then
+    echo -e "  [${GREEN}OK${NC}] No common language runtimes or SDKs found in PATH."
+fi
+
+# 5. Unused CLI Tools
+echo -e "\n${BOLD}5. Unused CLI Tools Check (>1 year without access)${NC}"
 echo "(Note: macOS does not strictly log file access times, so this is an estimation.)"
 
 dirs_to_check=("/usr/local/bin" "/opt/homebrew/bin" "$HOME/bin" "$HOME/.local/bin")
