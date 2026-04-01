@@ -1,8 +1,8 @@
 class Macmaintain < Formula
   desc "Mac maintenance and optimization checker"
   homepage "https://github.com/pdnhan/mac-maintenance-script"
-  url "https://github.com/pdnhan/mac-maintenance-script/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "e4b479b989e569ef681d6b00d6750810565e41b231ab099890007dc22ffdeeb4"
+  url "https://github.com/pdnhan/mac-maintenance-script/archive/refs/tags/v1.0.1.tar.gz"
+  sha256 "eae4fe9beca3108f963ff8b59cb6d3e41e8a961d649782d2ae2d7f4382da0453"
   license "MIT"
 
   depends_on "bash"
